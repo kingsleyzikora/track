@@ -44,7 +44,7 @@ jobs:
         docker run -d --name frontend --network my-network -p 80:80 kingsleyzikora/frontend-app:latest 
         EOF
 
-        # ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_INSTANCE_IP }} << 'EOF'
+       # # ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_INSTANCE_IP }} << 'EOF'
         # docker pull kingsleyzikora/frontend-app:latest
         # docker stop $(docker ps -a -q) || true
         # docker run -d --name frontend --network my-network -p 80:80 kingsleyzikora/frontend-app .
