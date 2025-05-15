@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    networks:
+      - my-network
+    depends_on:
+      - backend
+
+  backend:
+    image: node:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
