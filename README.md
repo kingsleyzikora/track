@@ -10,7 +10,10 @@ git clone https://github.com/kingsleyzikora/track.git
 1. Nginx was used to serve as the Frontend.
 2. Nodejs was used to serve as the Backend.
 3. MongoDb was used to serve as the Data store to cache/store and track users input.
-4. create custom Network for both frontend, backend and database for seemless connectivity.
+4. created custom Network for both frontend, backend and database for seemless connectivity.
+5. created a docker-compose.yaml file which has in it a yaml script i used to deploy the applications locally. 
+
+All codes used for this project can be found in the **frontend**, **backend** folders, **.github/workflow/zikora.yaml**** and **docker-compose.yaml** files in this repository
 
 
 
