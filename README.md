@@ -43,3 +43,14 @@ git clone https://github.com/kingsleyzikora/track.git
 ### IMAGE OF Backend Mongo DB App
 
 ![alt text](<mongo db backend.jpg>)
+
+
+### IMAGE OF Grafana Visualization
+
+![alt text](<grafana image for task.jpg>)
+
+
+
+### IMAGE OF Prometheus Showing The Time Node Exporter Scrapped Matrics From The Node
+
+![alt text](<prometheus image for task.jpg>)
