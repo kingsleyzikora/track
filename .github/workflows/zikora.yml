@@ -1,12 +1,9 @@
-name: Deploy Docker Image to EC2
+name: Deploy Docker Images to EC2
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'backend/Dockerfile'
-      - 'frontend/Dockerfile'
 
 jobs:
   deploy:
@@ -14,38 +11,51 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Docker Build
-      uses: docker/build-push-action@v5
-
-    - name: Login to DockerHub
-      run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN}}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-
-    - name: Build and push Docker image 1
       run: |
-        docker build -t kingsleyzikora/backend-app:latest . ./backend/
-        docker build -t kingsleyzikora/frontend-app:latest . ./frontend/
-        docker push kingsleyzikora/backend-app
-        docker push kingsleyzikora/frontend-app
+        docker build ./backend/ -t kingsleyzikora/backend-app:latest 
+        docker build ./frontend/ -t kingsleyzikora/frontend-app:latest
+       
+    - name: Login to DockerHub
+      run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
-    - name: Install SSH Key
+    - name: Push Docker images
+      run: |
+        docker push kingsleyzikora/backend-app:latest
+        docker push kingsleyzikora/frontend-app:latest
+
+    - name: Install SSH Key for Staging
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Deploy Docker image to EC2
+    - name: Deploy to Staging Environment
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_INSTANCE_IP }} << 'EOF'
-        docker pull kingsleyzikora/backend-app:latest .
-        docker pull kingsleyzikora/frontend-app:latest .
-        docker stop $(docker ps -a -q) || true
-        docker run -d --name backend --network my-network -p 3001:3000 kingsleyzikora/backend-app:latest .
-        docker run -d --name frontend --network my-network -p 80:80 kingsleyzikora/frontend-app:latesst .
+        docker pull kingsleyzikora/backend-app:latest
+        docker pull kingsleyzikora/frontend-app:latest
+        docker stop backend frontend || true
+        docker rm backend frontend || true
+        docker run -d --name backend --network zikora-net -p 3001:3000 kingsleyzikora/backend-app:latest 
+        docker run -d --name frontend --network zikora-net -p 80:80 kingsleyzikora/frontend-app:latest 
+        docker system prune -af
         EOF
 
-        # ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_INSTANCE_IP }} << 'EOF'
-        # docker pull kingsleyzikora/frontend-app .
-        # docker stop $(docker ps -a -q) || true
-        # docker run -d --name frontend --network my-network -p 80:80 kingsleyzikora/frontend-app .
-        # EOF 
+    - name: Install SSH Key for Production
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY2 }}
+
+    - name: Deploy to Production Environment
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER2 }}@${{ secrets.EC2_INSTANCE_IP2 }} << 'EOF'
+        docker pull kingsleyzikora/backend-app:latest
+        docker pull kingsleyzikora/frontend-app:latest
+        docker stop backend frontend || true
+        docker rm backend frontend || true
+        docker run -d --name backend --network zikora-net -p 3002:3000 kingsleyzikora/backend-app:latest 
+        docker run -d --name frontend --network zikora-net -p 8081:80 kingsleyzikora/frontend-app:latest 
+        docker system prune -af
+        EOF
